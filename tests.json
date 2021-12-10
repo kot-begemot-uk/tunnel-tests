@@ -1,0 +1,59 @@
+{
+    "common": {
+        "up": [
+            "ip link set {link} mtu 1400",
+            "ip addr add {inner}/30 dev {link}",
+            "ip link set {link} up"
+        ],
+        "down": [
+            "ip link set {link} down"
+        ]
+    },
+    "tests": [
+        {
+            "name":"gre",
+            "up": [
+                "ip tunnel add {link} mode gre local {local} remote {remote} ttl 254"
+            ],
+            "down": [
+                "ip link del {link}"
+            ]
+        },
+        {
+            "name":"vxlan",
+            "up": [
+                "ip link add {link} type vxlan id 100 local {local} remote {remote} dstport 4789"
+            ],
+            "down": [
+                "ip link del {link}"
+            ]
+        },
+        {
+            "name":"eol2tpv3",
+            "up": [
+                "ip l2tp add tunnel remote {remote} local {local} encap udp tunnel_id 2 peer_tunnel_id 2 udp_sport {sport} udp_dport {dport}",
+                "ip l2tp add session name {link} tunnel_id 2 session_id 0xffffffff peer_session_id 0xffffffff"
+            ],
+            "down": [
+                "ip l2tp del session tunnel_id 2 session_id 0xffffffff",
+                "ip l2tp del tunnel tunnel_id 2"
+            ]
+        }
+    ],
+    "ipsec": [
+        "conn test-vpn-{id}",
+        "   left={local}",
+        "   right={remote}",
+        "   authby=secret",
+        "   pfs=yes",
+        "   rekey=yes",
+        "   keyingtries=3",
+        "   type=transport",
+        "   auto=start",
+        "   ike=aes_gcm-sha2;modp2048",
+        "   phase2alg=aes_gcm-null;modp2048"
+    ],
+    "secrets": [
+        "{local} {remote} : PSK \"test vpn secret 0\""
+    ]
+}
