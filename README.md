@@ -41,3 +41,5 @@ It is possible to see the commands that are going to be executed by passing --dr
 
 The commands and tests are configurable using the tests.json file supplied with the distribution.
 
+Local and Remote IPs must exist on the host. If you want to test a specific NIC use that NIC's IP and set out the routing accordingly. Best of all connect the NICs back-to-back or via a single switch in-between. The test subnet must not conflict and must be specified as in the example - first 3 nibble. The script will set-up sequential /30s in the subnet for the test and tear them down when cleaning up.
+
