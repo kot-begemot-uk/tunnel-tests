@@ -37,6 +37,8 @@ Run on host B
 
 ```
 
+To run a tunnel mode IPSEC test, pass a --config tunnel-tests.json to the ipsec variant of the invocation.
+
 It is possible to see the commands that are going to be executed by passing --dryrun to the script.
 
 The commands and tests are configurable using the tests.json file supplied with the distribution.

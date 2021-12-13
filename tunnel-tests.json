@@ -1,0 +1,41 @@
+{
+    "common": {
+        "up": [
+            "ip link set l-{link} mtu 1400",
+            "ip addr add {inner}/32 dev l-{link}",
+            "ip link set l-{link} up"
+        ],
+        "down": [
+            "ip link set l-{link} down"
+        ]
+    },
+    "tests": [
+        {
+            "name":"tt",
+            "up": [
+                "ip link add l-{link} type veth peer name p-{link}"
+            ],
+            "down": [
+                "ip link del l-{link}"
+            ]
+        }
+    ],
+    "ipsec": [
+        "conn test-vpn-{id}",
+        "   left={local}",
+        "   leftsubnet={inner}/32",
+        "   right={remote}",
+        "   rightsubnet={inner-remote}/32",
+        "   authby=secret",
+        "   pfs=yes",
+        "   rekey=yes",
+        "   keyingtries=3",
+        "   type=tunnel",
+        "   auto=start",
+        "   ike=aes_gcm-sha2;modp2048",
+        "   phase2alg=aes_gcm-null;modp2048"
+    ],
+    "secrets": [
+        "{local} {remote} : PSK \"test vpn secret 0\""
+    ]
+}

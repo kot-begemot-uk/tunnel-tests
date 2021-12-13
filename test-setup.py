@@ -37,6 +37,10 @@ class Test():
         for test in self.tests:
             params["link"] = "{}{}".format(test["name"],self.ipsec_id)
             params["inner"] = params["subnet"] + "." + str(ip_addr)
+            if ip_addr % 2 == 0:
+                params["inner-remote"] = params["subnet"] + "." + str(ip_addr - 1)
+            else:
+                params["inner-remote"] = params["subnet"] + "." + str(ip_addr + 1)
 
             ip_addr = ip_addr + 4
 
@@ -80,6 +84,7 @@ class Test():
         '''Run iperf on the server side and record the results'''
         try:
             print("Press Ctrl-C to terminate test")
+            #pylint: disable=too-many-format-args
             subprocess.run(
                 "iperf -s".format(self.ipsec_id),
                 shell=True,
@@ -98,10 +103,13 @@ class Test():
         report = open("result.{}.txt".format(self.ipsec_id), "w+")
         for test in self.tests:
             print("Test {}".format(test["name"]))
+
+            source = params["subnet"] + ".{}".format(ip_addr + 1)
+
             report.write("Test {}\n".format(test["name"]))
             target = params["subnet"] + ".{}".format(ip_addr)
             report.write(subprocess.run(
-                "iperf -c {}".format(target),
+                "iperf -c {} -B {}".format(target, source),
                 shell=True,
                 capture_output=True,
                 check=False).stdout.decode("utf-8"))
@@ -170,6 +178,12 @@ def main():
         Tester = Test(CONFIG)
 
     if args.get('ipsec'):
+        if args["client"]:
+            args["inner"] = args["subnet"] + ".2"
+            args["inner-remote"] = args["subnet"] + ".1"
+        else:
+            args["inner"] = args["subnet"] + ".1"
+            args["inner-remote"] = args["subnet"] + ".2"
         Tester.ipsec_on(args)
 
     if args.get('server'):
